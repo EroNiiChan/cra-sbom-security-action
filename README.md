@@ -1,6 +1,8 @@
 # European CRA CycloneDX SBOM & CI/CD Secret Audit Action 🛡️🇪🇺
 
 [![GitHub Action](https://img.shields.io/badge/GitHub%20Action-Composite-purple?logo=githubactions)](https://github.com/EroNiiChan/cra-sbom-security-action)
+[![Awesome Actions](https://img.shields.io/badge/Awesome--Actions-Security-blueviolet?logo=githubactions)](https://github.com/sdras/awesome-actions#static-analysis)
+[![Curated DevSecOps](https://img.shields.io/badge/Curated-DevSecOps-success?logo=shield)](https://github.com/devsecops/awesome-devsecops#secret-management)
 [![CycloneDX 1.5](https://img.shields.io/badge/SBOM-CycloneDX%20v1.5%20JSON-blue?logo=cyclonedx)](https://cyclonedx.org/)
 [![EU CRA: Regulation (EU) 2024/2847](https://img.shields.io/badge/EU%20CRA-Regulation%20(EU)%202024%2F2847-informational)](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R2847)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20(Stdlib)-brightgreen)](sec_sbom_audit.py)
