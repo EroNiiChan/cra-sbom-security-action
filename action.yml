@@ -1,0 +1,79 @@
+name: 'European CRA SBOM & CI/CD Secret Audit'
+description: 'Zero-dependency CycloneDX v1.5 SBOM generator & credential leak auditor for European Cyber Resilience Act (Regulation (EU) 2024/2847) compliance.'
+author: 'EroNiiChan'
+branding:
+  icon: 'shield'
+  color: 'purple'
+
+inputs:
+  path:
+    description: 'Path to directory or repository root to scan'
+    required: false
+    default: '.'
+  format:
+    description: 'Console log output format (summary, markdown, json, cyclonedx)'
+    required: false
+    default: 'summary'
+  output-file:
+    description: 'File path to save the generated CRA compliance & security report (e.g. cra-security-audit.md or cra-report.json)'
+    required: false
+    default: 'cra-security-audit.md'
+  sbom-file:
+    description: 'File path to save the generated CycloneDX v1.5 JSON SBOM'
+    required: false
+    default: 'cyclonedx-sbom.json'
+  fail-on:
+    description: 'Build failure threshold: none, secrets, copyleft, high, any'
+    required: false
+    default: 'none'
+  exclude:
+    description: 'Optional path pattern to exclude from scan'
+    required: false
+    default: ''
+
+outputs:
+  cra-status:
+    description: 'Overall European CRA compliance rating (COMPLIANT, WARNING, NON_COMPLIANT)'
+    value: ${{ steps.audit.outputs.cra-status }}
+  secrets-count:
+    description: 'Total number of detected leaked credentials and secrets'
+    value: ${{ steps.audit.outputs.secrets-count }}
+  components-count:
+    description: 'Total software dependencies cataloged in CycloneDX SBOM'
+    value: ${{ steps.audit.outputs.components-count }}
+  critical-secrets:
+    description: 'Total number of critical leaked keys (AWS, GitHub PAT, OpenAI, Stripe, Private Keys)'
+    value: ${{ steps.audit.outputs.critical-secrets }}
+  copyleft-count:
+    description: 'Number of strong copyleft dependencies detected (GPL/AGPL)'
+    value: ${{ steps.audit.outputs.copyleft-count }}
+  sbom-path:
+    description: 'Path where the CycloneDX JSON SBOM was saved'
+    value: ${{ steps.audit.outputs.sbom-path }}
+  report-path:
+    description: 'Path where the CRA audit report was saved'
+    value: ${{ steps.audit.outputs.report-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Run CRA SBOM & Secret Leak Audit
+      id: audit
+      shell: bash
+      run: |
+        EXCLUDE_ARG=""
+        if [ -n "${{ inputs.exclude }}" ]; then
+          EXCLUDE_ARG="--exclude ${{ inputs.exclude }}"
+        fi
+
+        python "${{ github.action_path }}/sec_sbom_audit.py" "${{ inputs.path }}" \
+          --format "${{ inputs.format }}" \
+          --output "${{ inputs.output-file }}" \
+          --sbom-out "${{ inputs.sbom-file }}" \
+          --fail-on "${{ inputs.fail-on }}" \
+          $EXCLUDE_ARG

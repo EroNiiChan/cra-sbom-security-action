@@ -1,0 +1,55 @@
+name: CI Security & SBOM Self-Audit
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  audit:
+    name: Run CRA SBOM & Secret Scan
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.11', '3.12']
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run Standalone CLI Self-Audit
+        run: |
+          python sec_sbom_audit.py . --format summary --output cra-audit-report.md --sbom-out cyclonedx-sbom.json --fail-on none
+
+      - name: Validate CycloneDX SBOM JSON Format
+        run: |
+          python -c "import json; d=json.load(open('cyclonedx-sbom.json')); assert d['bomFormat'] == 'CycloneDX'; assert d['specVersion'] == '1.5'; print('CycloneDX validation SUCCESS')"
+
+      - name: Test Composite GitHub Action
+        uses: ./
+        with:
+          path: '.'
+          fail-on: 'none'
+          format: 'summary'
+
+      - name: Upload SBOM Artifact
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cyclonedx-sbom
+          path: cyclonedx-sbom.json
+
+      - name: Upload CRA Compliance Report
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cra-security-audit-report
+          path: cra-audit-report.md

@@ -1,0 +1,19 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Output audit reports and test sboms
+cyclonedx-sbom.json
+cra-security-audit.md
+cra-audit-report.md
+cra-report.json
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+push_repo.py
